@@ -12,6 +12,7 @@ public class GOLController : MonoBehaviour
     public GameObject cellPrefab; //cell prefab that will be initialized
     public Transform parent; //parent to hold all cells in game
     public int time = 0;
+    public int frames = 100;
     void Initiate()
     {
 //      cells[0][0] = gameObject.AddComponent<Cell>();
@@ -118,7 +119,8 @@ public class GOLController : MonoBehaviour
   private void Update()
   {
     time++;
-    if (time % 6 == 0)
+
+    if (time % frames == 0)
     {
       UpdateCells();
     }
