@@ -305,11 +305,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   updateTime: 1
-  cellCount_X: 10
-  cellCount_Y: 10
+  cellCount_X: 100
+  cellCount_Y: 100
   cellPrefab: {fileID: 2446499491647452299, guid: 21dddb7c1f46f61628505116077b3efc, type: 3}
   parent: {fileID: 1819869810}
   time: 0
+  frames: 25
 --- !u!4 &1819869810
 Transform:
   m_ObjectHideFlags: 0
