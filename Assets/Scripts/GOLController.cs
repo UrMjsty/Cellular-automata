@@ -20,7 +20,7 @@ public class GOLController : MonoBehaviour
     public bool IsPandemic => ZombieCount > 100;
     public int ZombieCount;
     [Range(0, 100)][SerializeField] private int baseZombieChance;
-    private int HunterChance => baseZombieChance;// * ZombieCount;
+    private int HunterChance = 10;// * ZombieCount;
     void Initiate()
     {
 //      cells[0][0] = gameObject.AddComponent<Cell>();
@@ -64,6 +64,18 @@ public class GOLController : MonoBehaviour
                     cell.SetState(CellState.Normal);// = CellState.Normal;
                 }
                 
+            }
+        }
+    } 
+    public void SetRandom()
+    {
+        for (int i = 0; i < cellCount_X; i++)
+        {
+            for (int j = 0; j < cellCount_Y; j++)
+            {
+                var cell = cells[i][j];
+                var rand = new Random().Next(2);
+                cell.SetState(rand == 1 ? CellState.Normal : CellState.Empty);
             }
         }
     }
