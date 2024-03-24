@@ -46,6 +46,8 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler
 */
     public void UpdateCell()
     {
+      //  if (nextState != CellState.Normal && nextState !=CellState.Zombie && nextState!= CellState.Hunter)
+           // nextState = CellState.Empty;
         SetState(nextState);
      
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using Random = System.Random;
 
@@ -16,7 +17,7 @@ public class GOLController : MonoBehaviour
     public Transform parent; //parent to hold all cells in game
     public int time = 0;
     public int frames = 100;
-    public bool IsZombie => ZombieCount > 0;
+    public bool IsPandemic => ZombieCount > 100;
     public int ZombieCount => CalculateZombieCount();
     [Range(0, 100)][SerializeField] private int baseZombieChance;
     private int HunterChance => baseZombieChance;// * ZombieCount;
@@ -28,7 +29,7 @@ public class GOLController : MonoBehaviour
         cells[1][1] = gameObject.AddComponent<Cell>();*/
     }
 
-    void CreateCells()
+    public void CreateCells()
     {
         cells = new Cell[cellCount_X][];
         for (int i = 0; i < cellCount_X; i++)
@@ -42,59 +43,159 @@ public class GOLController : MonoBehaviour
                 Cell cell = Instantiate(cellPrefab, new Vector3(i - 10, j - 5), Quaternion.identity, parent)
                     .GetComponent<Cell>();
                 cell.SetState(rand == 0 ? CellState.Empty : CellState.Normal);
-
+                cell.nextState = (rand == 0 ? CellState.Empty : CellState.Normal);
+                
                 cells[i][j] = cell;
             }
         }
     }
 
-    void UpdateCells()
+    public void SetNormal()
     {
+        for (int i = 0; i < cellCount_X; i++)
+        {
+            for (int j = 0; j < cellCount_Y; j++)
+            {
+                var cell = cells[i][j];
+                if(cell.State == CellState.Empty)
+                    continue;
+                else
+                {
+                    cell.nextState = CellState.Normal;
+                }
+                
+            }
+        }
+    }
+
+    private CellState GetRandomState()
+    {
+        CellState state;
+        var rand = new Random().Next(100);
+        state = CellState.Normal;
+        if (IsPandemic)
+        {
+            if (rand < HunterChance)
+                state = CellState.Hunter;
+        }
+        else 
+        {
+            if (rand < baseZombieChance)
+                state = CellState.Zombie;
+        }
+        return state;
+    }
+
+    private CellState GetNewPeopleState()
+    {
+        if (!IsPandemic)
+            return CellState.Normal;
+        else
+        {
+            var rand = new Random().Next(100);
+            {
+                if (rand < HunterChance)
+                    return CellState.Hunter;
+            }
+        }
+
+        return CellState.Normal;
+    }
+    private void UpdateCells()
+    {
+        if(ZombieCount < 5)
+            SetNormal();
         //start checking and marking cells
         for (int i = 1; i < cells.Length - 1; i++)
         {
             for (int j = 1; j < cells[i].Length - 1; j++)
             {
-                int liveNeighbours = CountLiveNeighbors(i, j);
-                liveNeighbours -= 8;
-                //if(liveNeighbours >0 )
-                    Debug.Log(liveNeighbours);
-              /*  // Rule 4: Mark cells as zombie if they have exactly 4 live neighbors
-                if (cells[i][j].State == CellState.Empty  && liveNeighbours >= 4) {
-                    cells[i][j].nextState = CellState.Zombie;
-                }
-*/
-                //now after finding the neighbour, we can check rule to mark them dead of alive for next update
-                //Rule 1: A live cell with 2 or 3 alive neighbouring cells survives
-                if (cells[i][j].State != CellState.Empty && (liveNeighbours == 2 || liveNeighbours == 3))
+                Cell currentCell = cells[i][j];
+                var normalNeighbors = 0;
+                var zombieNeighbours = 0;
+                var hunterNeighbors = 0;
+                (normalNeighbors, zombieNeighbours, hunterNeighbors) = CountLiveNeighbors(i, j);
+                int peopleNeighbors = normalNeighbors + hunterNeighbors;
+                int neighbors = peopleNeighbors + zombieNeighbours;
+                //if(liveNeighbours <0 )
+                /*  // Rule 4: Mark cells as zombie if they have exactly 4 live neighbors
+                  if (cells[i][j].State == CellState.Empty  && liveNeighbours >= 4) {
+                      cells[i][j].nextState = CellState.Zombie;
+                  }
+  */
+                currentCell.nextState = CellState.Empty;
+                switch (currentCell.State)
                 {
-                    continue;
-                }
-
-                //Rule 2:A dead cell with 3 neighbouring cells will get alive
-                if (cells[i][j].State == CellState.Empty && liveNeighbours == 3)
+                    case CellState.Empty:
+                        if (peopleNeighbors == 3)
+                            currentCell.nextState = GetRandomState();
+                        if (zombieNeighbours > 2 && zombieNeighbours < 7)
+                            currentCell.nextState = CellState.Zombie;
+                        break;
+                    case CellState.Normal:
+                        if (peopleNeighbors == 2 || peopleNeighbors == 3)
+                            currentCell.nextState = GetNewPeopleState();
+                        if (zombieNeighbours > 1)
+                            currentCell.nextState = CellState.Zombie;
+                        break;
+                    case CellState.Zombie:
+                        if (zombieNeighbours == 2 || zombieNeighbours == 3)
+                            currentCell.nextState = CellState.Zombie;
+                        if (hunterNeighbors > 1)
+                            currentCell.nextState = CellState.Hunter;
+                        break;
+                    case CellState.Hunter:
+                        if (ZombieCount == 0)
+                            currentCell.nextState = CellState.Normal;
+                        if(peopleNeighbors > 1)
+                            currentCell.nextState = CellState.Hunter;
+                        
+                        if (zombieNeighbours > 3)
+                               currentCell.nextState = CellState.Empty;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                } 
+                /*
+                if (currentCell.State == CellState.Normal && liveNeighbours == -1)
                 {
-                    var rand = new Random().Next(100);
-                    cells[i][j].nextState = CellState.Normal;
-                    if (IsZombie)
-                    {
-                        if (rand < HunterChance)
-                            cells[i][j].nextState = CellState.Hunter;
-                    }
-                    else 
-                    {
-                        if (rand < baseZombieChance)
-                            cells[i][j].nextState = CellState.Zombie;
-                    }
-                    continue;
+                    Debug.Log("zombie");
+                    currentCell.nextState = CellState.Zombie;
                 }
+                  //now after finding the neighbour, we can check rule to mark them dead of alive for next update
+                  //Rule 1: A live cell with 2 or 3 alive neighbouring cells survives
+                  if (currentCell.State != CellState.Empty && (liveNeighbours == 2 || liveNeighbours == 3))
+                  {
+                      continue;
+                  }
 
-                //Rule 3: All other cells dies
-                cells[i][j].nextState = CellState.Empty;
+                  //Rule 2:A dead cell with 3 neighbouring cells will get alive
+                  if (currentCell.State == CellState.Empty && liveNeighbours == 3)
+                  {
+                      var rand = new Random().Next(100);
+                      currentCell.nextState = CellState.Normal;
+                    /*  if (IsZombie)
+                      {
+                          if (rand < HunterChance)
+                              cells[i][j].nextState = CellState.Hunter;
+                      }
+                      else
+                      {
+                          if (rand < baseZombieChance)
+                              cells[i][j].nextState = CellState.Zombie;
+                      }
+                      continue;
+                  }
+
+                  //Rule 3: All other cells dies
+                  currentCell.nextState = CellState.Empty;
+              }
+          }
+          */
+                //All cells are marked so update all cells.
             }
         }
 
-        //All cells are marked so update all cells.
         for (int i = 0; i < cells.Length; i++)
         {
             for (int j = 0; j < cells[i].Length; j++)
@@ -104,8 +205,10 @@ public class GOLController : MonoBehaviour
         }
     }
     
-    int CountLiveNeighbors(int x, int y) {
-        int liveNeighbours = 0;
+    (int normalNeighbours, int zombieNeighbours, int hunterNeighbours) CountLiveNeighbors(int x, int y) {
+        int normalNeighbours = 0;
+        int zombieNeighbours = 0;
+        int hunterNeighbours = 0;
 
         // Check neighboring cells
         for (int dx = -1; dx <= 1; dx++) {
@@ -119,24 +222,22 @@ public class GOLController : MonoBehaviour
                         case CellState.Empty:
                             break;
                         case CellState.Normal:
-                            liveNeighbours++;
+                            normalNeighbours++;
                             break;
                         case CellState.Zombie:
-                           // return -1;
-                           liveNeighbours++;
+                           zombieNeighbours++;
                             break;
                         case CellState.Hunter:
-                            liveNeighbours++;
+                            hunterNeighbours++;
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                    liveNeighbours++;
                 }
             }
         }
 
-        return liveNeighbours;
+        return (normalNeighbours, zombieNeighbours, hunterNeighbours);
     }
 
     private void Awake()
@@ -159,6 +260,10 @@ public class GOLController : MonoBehaviour
             time = 0;
     }
 
+    public void WriteZombieCount()
+    {
+        Debug.Log(ZombieCount);
+    }
     public int CalculateZombieCount()
     {
         // Flatten the 2D array into a single sequence of cells
