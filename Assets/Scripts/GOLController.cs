@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = System.Random;
 
 public class GOLController : MonoBehaviour
@@ -20,7 +21,10 @@ public class GOLController : MonoBehaviour
     public bool IsPandemic => ZombieCount > 100;
     public int ZombieCount;
     [Range(0, 100)][SerializeField] private int baseZombieChance;
-    private int HunterChance = 10;// * ZombieCount;
+    private int HunterChance = 0;// * ZombieCount;
+    [SerializeField] private Slider zombieChanceSlider;
+    [SerializeField] private Slider hunterChanceSlider;
+    [SerializeField] private Slider gameSpeedSlider;
     void Initiate()
     {
 //      cells[0][0] = gameObject.AddComponent<Cell>();
@@ -80,6 +84,19 @@ public class GOLController : MonoBehaviour
         }
     }
 
+    public void SetZombieChance()
+    {
+        baseZombieChance = (int)zombieChanceSlider.value;
+    } 
+    public void SetHunterChance()
+    {
+        HunterChance = (int)hunterChanceSlider.value;
+    }
+
+    public void SetGameSpeed()
+    {
+        Time.timeScale = gameSpeedSlider.value;
+    }
     private CellState GetRandomState()
     {
         CellState state;
@@ -256,7 +273,7 @@ public class GOLController : MonoBehaviour
         Initiate();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         time++;
 
