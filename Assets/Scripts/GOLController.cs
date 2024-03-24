@@ -18,7 +18,7 @@ public class GOLController : MonoBehaviour
     public int time = 0;
     public int frames = 100;
     public bool IsPandemic => ZombieCount > 100;
-    public int ZombieCount => CalculateZombieCount();
+    public int ZombieCount;
     [Range(0, 100)][SerializeField] private int baseZombieChance;
     private int HunterChance => baseZombieChance;// * ZombieCount;
     void Initiate()
@@ -61,7 +61,7 @@ public class GOLController : MonoBehaviour
                     continue;
                 else
                 {
-                    cell.nextState = CellState.Normal;
+                    cell.SetState(CellState.Normal);// = CellState.Normal;
                 }
                 
             }
@@ -103,8 +103,6 @@ public class GOLController : MonoBehaviour
     }
     private void UpdateCells()
     {
-        if(ZombieCount < 5)
-            SetNormal();
         //start checking and marking cells
         for (int i = 1; i < cells.Length - 1; i++)
         {
@@ -147,7 +145,7 @@ public class GOLController : MonoBehaviour
                     case CellState.Hunter:
                         if (ZombieCount == 0)
                             currentCell.nextState = CellState.Normal;
-                        if(peopleNeighbors > 1)
+                        if(peopleNeighbors > 1 && peopleNeighbors < 5)
                             currentCell.nextState = CellState.Hunter;
                         
                         if (zombieNeighbours > 3)
@@ -255,8 +253,16 @@ public class GOLController : MonoBehaviour
             UpdateCells();
            // Debug.Log(ZombieCount);
         }
-
-        if (time > 100)
+        if (time % 200 == 0)
+        {
+            ZombieCount = CalculateZombieCount();
+            if (ZombieCount == 0)
+            {
+                Debug.Log("end");
+                SetNormal();
+            }
+        }
+        if (time > 1000)
             time = 0;
     }
 
