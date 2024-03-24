@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Random = System.Random;
 
@@ -15,7 +16,10 @@ public class GOLController : MonoBehaviour
     public Transform parent; //parent to hold all cells in game
     public int time = 0;
     public int frames = 100;
-
+    public bool IsZombie => ZombieCount > 0;
+    public int ZombieCount => CalculateZombieCount();
+    [Range(0, 100)][SerializeField] private int baseZombieChance;
+    private int HunterChance => baseZombieChance;// * ZombieCount;
     void Initiate()
     {
 //      cells[0][0] = gameObject.AddComponent<Cell>();
@@ -53,7 +57,7 @@ public class GOLController : MonoBehaviour
             {
                 int liveNeighbours = CountLiveNeighbors(i, j);
                 liveNeighbours -= 8;
-                if(liveNeighbours >0 )
+                //if(liveNeighbours >0 )
                     Debug.Log(liveNeighbours);
               /*  // Rule 4: Mark cells as zombie if they have exactly 4 live neighbors
                 if (cells[i][j].State == CellState.Empty  && liveNeighbours >= 4) {
@@ -70,7 +74,18 @@ public class GOLController : MonoBehaviour
                 //Rule 2:A dead cell with 3 neighbouring cells will get alive
                 if (cells[i][j].State == CellState.Empty && liveNeighbours == 3)
                 {
+                    var rand = new Random().Next(100);
                     cells[i][j].nextState = CellState.Normal;
+                    if (IsZombie)
+                    {
+                        if (rand < HunterChance)
+                            cells[i][j].nextState = CellState.Hunter;
+                    }
+                    else 
+                    {
+                        if (rand < baseZombieChance)
+                            cells[i][j].nextState = CellState.Zombie;
+                    }
                     continue;
                 }
 
@@ -107,7 +122,8 @@ public class GOLController : MonoBehaviour
                             liveNeighbours++;
                             break;
                         case CellState.Zombie:
-                            return -1;
+                           // return -1;
+                           liveNeighbours++;
                             break;
                         case CellState.Hunter:
                             liveNeighbours++;
@@ -136,9 +152,21 @@ public class GOLController : MonoBehaviour
         if (time % frames == 0)
         {
             UpdateCells();
+           // Debug.Log(ZombieCount);
         }
 
         if (time > 100)
             time = 0;
+    }
+
+    public int CalculateZombieCount()
+    {
+        // Flatten the 2D array into a single sequence of cells
+        var allCells = cells.SelectMany(row => row);
+
+        // Count the number of cells whose CellState is equal to Zombie
+        int zombieCount = allCells.Count(cell => cell.State == CellState.Zombie);
+
+        return zombieCount;
     }
 }
