@@ -74,7 +74,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b908cad1f2fd4fb27a124b250d717039, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -98,7 +98,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 1664152655023610305}
+  sprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: e03c82260a6ceb7b2abc6a4fb16207d8, type: 3}
+  - {fileID: 21300000, guid: 375f6dae1a2465765b8ea1491f4d80f3, type: 3}
+  - {fileID: 21300000, guid: b908cad1f2fd4fb27a124b250d717039, type: 3}
+  nextState: 0
   isCellAlive: 0
   aliveColor: {r: 0.6509434, g: 0.4452207, b: 0.4452207, a: 0}
   deadColor: {r: 0.1792453, g: 0.06510324, b: 0.06510324, a: 0}
-  gayColor: {r: 0.34509808, g: 0.7647059, b: 0.46384987, a: 1}
+  zombieColor: {r: 0, g: 0, b: 0, a: 0}

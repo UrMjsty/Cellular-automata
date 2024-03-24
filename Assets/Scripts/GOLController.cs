@@ -34,22 +34,10 @@ public class GOLController : MonoBehaviour
             {
                 // Instantiate cells and store them
                 var rand = new Random().Next(0,
-                    3); // Random number to determine cell type: 0 for dead, 1 for alive, 2 for zombie
+                    2); // Random number to determine cell type: 0 for dead, 1 for alive, 2 for zombie
                 Cell cell = Instantiate(cellPrefab, new Vector3(i - 10, j - 5), Quaternion.identity, parent)
                     .GetComponent<Cell>();
-                switch (rand)
-                {
-                    case 0: // Dead cell
-                        cell.isCellAlive = false;
-                        break;
-                    case 1: // Alive cell
-                        cell.isCellAlive = true;
-                        break;
-                    case 2: // Zombie cell
-                        cell.isCellAlive = true; // Zombie cells are initially alive
-                        cell.MarkZombie(); // Mark the cell as a zombie
-                        break;
-                }
+                cell.SetState(rand == 0 ? CellState.Empty : CellState.Normal);
 
                 cells[i][j] = cell;
             }
@@ -64,28 +52,30 @@ public class GOLController : MonoBehaviour
             for (int j = 1; j < cells[i].Length - 1; j++)
             {
                 int liveNeighbours = CountLiveNeighbors(i, j);
-                
-                // Rule 4: Mark cells as zombie if they have exactly 4 live neighbors
-                if (!cells[i][j].isCellAlive && liveNeighbours >= 4) {
-                    cells[i][j].MarkZombie();
+                liveNeighbours -= 8;
+                if(liveNeighbours >0 )
+                    Debug.Log(liveNeighbours);
+              /*  // Rule 4: Mark cells as zombie if they have exactly 4 live neighbors
+                if (cells[i][j].State == CellState.Empty  && liveNeighbours >= 4) {
+                    cells[i][j].nextState = CellState.Zombie;
                 }
-
+*/
                 //now after finding the neighbour, we can check rule to mark them dead of alive for next update
                 //Rule 1: A live cell with 2 or 3 alive neighbouring cells survives
-                if (cells[i][j].isCellAlive && (liveNeighbours == 2 || liveNeighbours == 3))
+                if (cells[i][j].State != CellState.Empty && (liveNeighbours == 2 || liveNeighbours == 3))
                 {
                     continue;
                 }
 
                 //Rule 2:A dead cell with 3 neighbouring cells will get alive
-                if (!cells[i][j].isCellAlive && liveNeighbours == 3)
+                if (cells[i][j].State == CellState.Empty && liveNeighbours == 3)
                 {
-                    cells[i][j].MarkAlive();
+                    cells[i][j].nextState = CellState.Normal;
                     continue;
                 }
 
                 //Rule 3: All other cells dies
-                cells[i][j].MarkDead();
+                cells[i][j].nextState = CellState.Empty;
             }
         }
 
@@ -108,7 +98,23 @@ public class GOLController : MonoBehaviour
                 if (dx == 0 && dy == 0) continue; // Skip the current cell
                 int nx = x + dx;
                 int ny = y + dy;
-                if (nx >= 0 && nx < cells.Length && ny >= 0 && ny < cells[x].Length && cells[nx][ny].isCellAlive) {
+                if (nx >= 0 && nx < cells.Length && ny >= 0 && ny < cells[x].Length) {
+                    switch (cells[nx][ny].State)
+                    {
+                        case CellState.Empty:
+                            break;
+                        case CellState.Normal:
+                            liveNeighbours++;
+                            break;
+                        case CellState.Zombie:
+                            return -1;
+                            break;
+                        case CellState.Hunter:
+                            liveNeighbours++;
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                     liveNeighbours++;
                 }
             }

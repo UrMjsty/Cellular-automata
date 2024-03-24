@@ -1,23 +1,37 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+public enum CellState
+{
+    Empty,
+    Normal,
+    Zombie,
+    Hunter
+}
 public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler
 {
     public SpriteRenderer spriteRenderer;
-    public bool isCellAlive;
-    private bool markedAlive, markedDead, markedZombie;
+    [SerializeField] private List<Sprite> sprites;
+    public CellState State { get; private set; }
+    public CellState nextState;
+  //  public bool isCellAlive;
+   // private bool markedAlive, markedDead, markedZombie;
     public Color aliveColor, deadColor, zombieColor; // Add color for Zombie cells
 
-    private void Awake() {
+    private void Awake()
+    {
+       // state = CellState.Normal;
+       // SetState(CellState.Normal);
         aliveColor.a = 1;
         deadColor.a = 1;
         zombieColor.a = 1; // Initialize alpha for Zombie color
-        spriteRenderer.color = GetCellColor();
+     //   spriteRenderer.color = GetCellColor();
     }
-
+/*
     public void MarkDead() {
         markedDead = true;
     }
@@ -29,19 +43,16 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler
     public void MarkZombie() {
         markedZombie = true;
     }
-
-    public void UpdateCell() {
-        if (markedAlive) {
-            ActivateCell();
-        }
-        if (markedDead) {
-            DeactivateCell();
-        }
-        // Reset Zombie mark after updating cell
-        markedZombie = false;
+*/
+    public void UpdateCell()
+    {
+        SetState(nextState);
+     
     }
-
-    public void ActivateCell() {
+/*
+    public void ActivateCell(CellState cs)
+    {
+        SetState(cs);
         markedAlive = false;
         markedDead = false;
         isCellAlive = true;
@@ -69,22 +80,22 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler
             }
         }
     }
-
+*/
     public void OnPointerEnter(PointerEventData eventData) {
         if (Input.GetMouseButton(0)) {
-            if (isCellAlive) {
-                DeactivateCell();
-            } else {
-                ActivateCell();
-            }
+            SetState(CellState.Zombie);
         }
     }
 
     public void OnPointerDown(PointerEventData eventData) {
-        if (isCellAlive) {
-            DeactivateCell();
-        } else {
-            ActivateCell();
-        }
+        SetState(CellState.Hunter);
+    }
+
+    public void SetState(CellState cs)
+    {
+        State = cs;
+        spriteRenderer.sprite = sprites[(int)State];
+        //if(cs == CellState.Normal)
+          //  Debug.Log("yes");
     }
 }
