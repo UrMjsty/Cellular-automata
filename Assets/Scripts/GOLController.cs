@@ -42,12 +42,13 @@ public class GOLController : MonoBehaviour
             for (int j = 0; j < cellCount_Y; j++)
             {
                 // Instantiate cells and store them
-                var rand = new Random().Next(0,
-                    2); // Random number to determine cell type: 0 for dead, 1 for alive, 2 for zombie
+              //  var rand = new Random().Next(2); // Random number to determine cell type: 0 for dead, 1 for alive, 2 for zombie
                 Cell cell = Instantiate(cellPrefab, new Vector3(i - 10, j - 5), Quaternion.identity, parent)
                     .GetComponent<Cell>();
-                cell.SetState(rand == 0 ? CellState.Empty : CellState.Normal);
-                cell.nextState = (rand == 0 ? CellState.Empty : CellState.Normal);
+              //  cell.SetState(rand == 0 ? CellState.Empty : CellState.Normal);
+                cell.SetState(CellState.Empty);
+              //  cell.nextState = (rand == 0 ? CellState.Empty : CellState.Normal);
+                cell.nextState = (CellState.Empty);
                 
                 cells[i][j] = cell;
             }
@@ -82,6 +83,25 @@ public class GOLController : MonoBehaviour
                 cell.SetState(rand == 1 ? CellState.Normal : CellState.Empty);
             }
         }
+    }
+
+    public void StartSimulation()
+    {
+        if (gameSpeedSlider.value == 0)
+        {
+            gameSpeedSlider.value = 1;
+            Time.timeScale = 1f;
+        }
+    }
+
+    public void SetDefaultSettings()
+    {
+        zombieChanceSlider.value = 4;
+        baseZombieChance = 4;
+        hunterChanceSlider .value = 15;
+        HunterChance = 15;
+        gameSpeedSlider.value = 1;
+        Time.timeScale = 1f;
     }
 
     public void SetZombieChance()
@@ -271,6 +291,7 @@ public class GOLController : MonoBehaviour
     {
         CreateCells();
         Initiate();
+        SetGameSpeed();
     }
 
     private void FixedUpdate()
@@ -293,8 +314,24 @@ public class GOLController : MonoBehaviour
         }
         if (time > 1000)
             time = 0;
+      
     }
 
+    private void Update()
+    {
+        if( Input.GetMouseButtonDown(0) )
+        {
+            Debug.Log("click");
+            Ray ray = Camera.main.ScreenPointToRay( Input.mousePosition );
+            Debug.Log(Camera.main == null);
+            RaycastHit hit;
+		
+            if( Physics.Raycast( ray, out hit, 10000 ) )
+            {
+                Debug.Log( hit.transform.gameObject.name );
+            }
+        }
+    }
     public void WriteZombieCount()
     {
         Debug.Log(ZombieCount);

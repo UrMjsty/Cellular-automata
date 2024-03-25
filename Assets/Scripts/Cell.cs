@@ -13,7 +13,7 @@ public enum CellState
     Zombie,
     Hunter
 }
-public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler
+public class Cell : MonoBehaviour//, IPointerEnterHandler, IPointerDownHandler
 {
     public SpriteRenderer spriteRenderer;
     [SerializeField] private List<Sprite> sprites;
@@ -84,15 +84,12 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler
         }
     }
 */
-    public void OnPointerEnter(PointerEventData eventData) {
-        if (Input.GetMouseButton(0)) {
-            SetState(CellState.Zombie);
-        }
+  
+    private void OnMouseDown()
+    {
+        SetState(CellState.Normal);
     }
-
-    public void OnPointerDown(PointerEventData eventData) {
-        SetState(CellState.Hunter);
-    }
+    
 
     public void SetState(CellState cs)
     {

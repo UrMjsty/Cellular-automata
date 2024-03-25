@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6647347066867886100}
   - component: {fileID: 1664152655023610305}
   - component: {fileID: 2670114462731920831}
+  - component: {fileID: 6012353379682141323}
   m_Layer: 0
   m_Name: Cell
   m_TagString: Untagged
@@ -111,3 +112,29 @@ MonoBehaviour:
   aliveColor: {r: 0.6509434, g: 0.4452207, b: 0.4452207, a: 0}
   deadColor: {r: 0.1792453, g: 0.06510324, b: 0.06510324, a: 0}
   zombieColor: {r: 0, g: 0, b: 0, a: 0}
+--- !u!61 &6012353379682141323
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2446499491647452299}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1.018, y: 1.024}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1.018, y: 1.024}
+  m_EdgeRadius: 0
