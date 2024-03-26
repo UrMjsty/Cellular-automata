@@ -19,8 +19,8 @@ public class GOLController : MonoBehaviour
     public int frames = 100;
     public bool IsPandemic => ZombieCount > 100;
     public int ZombieCount;
-    [Range(0, 100)][SerializeField] private int baseZombieChance;
-    private int HunterChance = 0;// * ZombieCount;
+    [Range(0, 100)][SerializeField] private float baseZombieChance;
+    private float HunterChance = 0;// * ZombieCount;
     [SerializeField] private Slider zombieChanceSlider;
     [SerializeField] private Slider hunterChanceSlider;
     [SerializeField] private Slider gameSpeedSlider;
@@ -95,10 +95,10 @@ public class GOLController : MonoBehaviour
 
     public void SetDefaultSettings()
     {
-        zombieChanceSlider.value = 4;
-        baseZombieChance = 4;
-        hunterChanceSlider .value = 25;
-        HunterChance = 15;
+        zombieChanceSlider.value = 12;
+        baseZombieChance = 12;
+        hunterChanceSlider .value = 65;
+        HunterChance = 65;
         gameSpeedSlider.value = 1;
         Time.timeScale = 1f;
     }
@@ -116,19 +116,32 @@ public class GOLController : MonoBehaviour
     {
         Time.timeScale = gameSpeedSlider.value;
     }
-    private CellState GetRandomState()
+    private CellState GetRandomState(int i, int j)
     {
         CellState state;
         var rand = new Random().Next(100);
         state = CellState.Normal;
         if (IsPandemic)
         {
-            if (rand < HunterChance)
+            if (rand < HunterChance * 2 && i > cellCount_X && j < cellCount_Y)
                 state = CellState.Hunter;
+            else if(rand < HunterChance * 5 && i < cellCount_X && j < cellCount_Y)
+                state = CellState.Hunter;
+            else if (rand < HunterChance  && i > cellCount_X && j > cellCount_Y)
+                state = CellState.Hunter;
+            else if (rand < HunterChance / 2 && i < cellCount_X && j > cellCount_Y)
+                state = CellState.Hunter;
+            
         }
         else 
         {
-            if (rand < baseZombieChance)
+            if (rand < baseZombieChance * 3 && i < cellCount_X/2 && j > cellCount_Y)
+                state = CellState.Zombie;
+            else if (rand < baseZombieChance && i > cellCount_X/2 && j > cellCount_Y)
+                state = CellState.Zombie;
+            else if (rand < baseZombieChance * 2 && i < cellCount_X/2 && j < cellCount_Y)
+                state = CellState.Zombie;
+            else if (rand < baseZombieChance / 3 && i > cellCount_X/2 && j < cellCount_Y)
                 state = CellState.Zombie;
         }
         return state;
@@ -171,7 +184,7 @@ public class GOLController : MonoBehaviour
                 {
                     case CellState.Empty:
                         if (peopleNeighbors == 3)
-                            currentCell.nextState = GetRandomState();
+                            currentCell.nextState = GetRandomState(i, j);
                         if (zombieNeighbours > 2 && zombieNeighbours < 7)
                             currentCell.nextState = CellState.Zombie;
                         break;
@@ -299,7 +312,7 @@ public class GOLController : MonoBehaviour
             UpdateCells();
            // Debug.Log(ZombieCount);
         }
-        if (time % 200 == 0)
+        if (time % 400 == 0)
         {
             ZombieCount = CalculateZombieCount();
             if (ZombieCount == 0)
@@ -312,7 +325,7 @@ public class GOLController : MonoBehaviour
       
     }
 
-  /*  private void Update()
+    private void Update()
     {
         if( Input.GetMouseButtonDown(0) )
         {
@@ -330,7 +343,7 @@ public class GOLController : MonoBehaviour
     public void WriteZombieCount()
     {
         Debug.Log(ZombieCount);
-    }*/
+    }
   
     public int CalculateZombieCount()
     {
