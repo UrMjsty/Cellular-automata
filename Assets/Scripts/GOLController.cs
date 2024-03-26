@@ -9,8 +9,7 @@ using Random = System.Random;
 
 public class GOLController : MonoBehaviour
 {
-    public float
-        updateTime; //call update cells to update cell. We can use coroutines or just create timer system to make repreated calls to it
+    public float updateTime; //call update cells to update cell. We can use coroutines or just create timer system to make repreated calls to it
 
     public int cellCount_X, cellCount_Y; //number of cells in row and column
     public Cell[][] cells; //holder to store cells. we will store them in row and columt
@@ -98,7 +97,7 @@ public class GOLController : MonoBehaviour
     {
         zombieChanceSlider.value = 4;
         baseZombieChance = 4;
-        hunterChanceSlider .value = 15;
+        hunterChanceSlider .value = 25;
         HunterChance = 15;
         gameSpeedSlider.value = 1;
         Time.timeScale = 1f;
@@ -139,13 +138,10 @@ public class GOLController : MonoBehaviour
     {
         if (!IsPandemic)
             return CellState.Normal;
-        else
+        var rand = new Random().Next(100);
         {
-            var rand = new Random().Next(100);
-            {
-                if (rand < HunterChance)
-                    return CellState.Hunter;
-            }
+            if (rand < HunterChance)
+                return CellState.Hunter;
         }
 
         return CellState.Normal;
@@ -308,7 +304,6 @@ public class GOLController : MonoBehaviour
             ZombieCount = CalculateZombieCount();
             if (ZombieCount == 0)
             {
-                Debug.Log("end");
                 SetNormal();
             }
         }
@@ -317,7 +312,7 @@ public class GOLController : MonoBehaviour
       
     }
 
-    private void Update()
+  /*  private void Update()
     {
         if( Input.GetMouseButtonDown(0) )
         {
@@ -335,7 +330,8 @@ public class GOLController : MonoBehaviour
     public void WriteZombieCount()
     {
         Debug.Log(ZombieCount);
-    }
+    }*/
+  
     public int CalculateZombieCount()
     {
         // Flatten the 2D array into a single sequence of cells

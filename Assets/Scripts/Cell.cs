@@ -105,6 +105,7 @@ public class Cell : MonoBehaviour//, IPointerEnterHandler, IPointerDownHandler
             case CellState.Zombie:
                 var rand = new Random().Next(4);
                 spriteRenderer.sprite = sprites[4+rand];
+                Debug.Log(spriteRenderer.sprite.name);
                 break;
             case CellState.Hunter: 
                 rand = new Random().Next(2);
