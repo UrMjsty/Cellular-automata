@@ -17,6 +17,7 @@ public class GOLController : MonoBehaviour
     public Transform parent; //parent to hold all cells in game
     public int time = 0;
     public int frames = 100;
+    public int numberOfGenerations;
     public bool IsPandemic => ZombieCount > 100;
     public int ZombieCount;
     [Range(0, 100)][SerializeField] private float baseZombieChance;
@@ -24,6 +25,7 @@ public class GOLController : MonoBehaviour
     [SerializeField] private Slider zombieChanceSlider;
     [SerializeField] private Slider hunterChanceSlider;
     [SerializeField] private Slider gameSpeedSlider;
+    [SerializeField] private InputField _inputField;
     void Initiate()
     {
 //      cells[0][0] = gameObject.AddComponent<Cell>();
@@ -32,6 +34,10 @@ public class GOLController : MonoBehaviour
         cells[1][1] = gameObject.AddComponent<Cell>();*/
     }
 
+    public void SetNumberOfGenerations()
+    {
+        numberOfGenerations = Convert.ToInt32(_inputField.text);
+    }
     public void CreateCells()
     {
         cells = new Cell[cellCount_X][];
@@ -73,6 +79,7 @@ public class GOLController : MonoBehaviour
     } 
     public void SetRandom()
     {
+        time = 0;
         for (int i = 0; i < cellCount_X; i++)
         {
             for (int j = 0; j < cellCount_Y; j++)
@@ -310,8 +317,9 @@ public class GOLController : MonoBehaviour
         if (time % frames == 0)
         {
             UpdateCells();
-           // Debug.Log(ZombieCount);
+            // Debug.Log(ZombieCount);
         }
+
         if (time % 400 == 0)
         {
             ZombieCount = CalculateZombieCount();
@@ -320,10 +328,13 @@ public class GOLController : MonoBehaviour
                 SetNormal();
             }
         }
-        if (time > 1000)
-            time = 0;
-      
-    }
+
+        if (time / frames > numberOfGenerations)
+        {
+            Time.timeScale = 0f; 
+            gameSpeedSlider.value = 0;
+        }
+}
 
     private void Update()
     {
